@@ -20,6 +20,11 @@ static var previousTopLeft: NSPoint?
 func documentController() -> NSDocumentController {
 	NSDocumentController.shared
 }
+
+func initialWindowSize() -> NSSize? {
+	nil
+}
+
 ```
 
 ## Usage

@@ -36,6 +36,10 @@ public protocol DocumentWindowControllerWithCascading: NSWindowController {
 		NSDocumentController.shared
 	 }
 	 
+	 func initialWindowSize() -> NSSize? {
+		nil
+	 }
+	 
 	 
 	 ## 使い方:
 	 - ドキュメントウインドウ (NSWindow) のサブクラスを `DocumentWindowCascading` に準拠させる
