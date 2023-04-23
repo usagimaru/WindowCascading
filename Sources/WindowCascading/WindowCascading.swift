@@ -6,21 +6,21 @@ public protocol DocumentWindowCascading: NSWindow {}
 public protocol DocumentWindowControllerWithCascading: NSWindowController {
 	
 	/// Window Frameの自動保存の有効化/無効化
-	public var windowFrameSavingAllowed: Bool {get set}
+	var windowFrameSavingAllowed: Bool {get set}
 	/// 最後のウインドウを閉じる際に、保存した Window Frame を削除するか
-	public var discardWindowFrameAutosaveWhenLastWindowClosed: Bool {get set}
+	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool {get set}
 	/// 最初のウインドウが開く際に、位置を画面中央に配置するか（Window Frameの座標を復元しない）
-	public var centerWindowPositionWhenFirstWindowOpening: Bool {get set}
+	var centerWindowPositionWhenFirstWindowOpening: Bool {get set}
 	/// Autosave Name
-	public var windowFrameAutosaveName_alt: String {get}
+	var windowFrameAutosaveName_alt: String {get}
 	
-	open static var previousTopLeft: NSPoint? {get set}
+	static var previousTopLeft: NSPoint? {get set}
 	
 	/// DocumentControllerを返す
-	public func documentController() -> NSDocumentController
+	func documentController() -> NSDocumentController
 	
 	/// 初回ウインドウサイズを設定する
-	public func initialWindowSize() -> NSSize?
+	func initialWindowSize() -> NSSize?
 	
 	/*
 	 ## WindowController の実装に以下をコピペするか、カスタマイズする:
@@ -233,7 +233,7 @@ public extension DocumentWindowControllerWithCascading {
 	
 }
 
-open extension DocumentWindowCascading {
+public extension DocumentWindowCascading {
 	
 	var topLeft: NSPoint {
 		NSPoint(x: frame.minX, y: frame.maxY)
@@ -241,7 +241,7 @@ open extension DocumentWindowCascading {
 	
 }
 
-open extension NSDocumentController {
+public extension NSDocumentController {
 	
 	func allDocumentWindowCascading() -> [DocumentWindowCascading] {
 		self.documents.map {
