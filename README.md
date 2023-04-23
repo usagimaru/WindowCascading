@@ -54,3 +54,8 @@ AutosaveNameに"window"が含まれていると、カスケーディング処理
 
 この実装では、`NSWindowController.windowFrameAutosaveName` を使わずにカスケーディングとフレーム保存を実現する方針をとります。"NSWindow Frame HOGE" をキーとするUserDefaultsを直接読み書きしてこれに対処します。
 
+参考:
+
+- https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
+- https://github.com/jessegrosjean/window.autosaveName/blob/master/Test/WindowController.m
+
