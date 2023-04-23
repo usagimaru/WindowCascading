@@ -1,5 +1,5 @@
 import Cocoa
 
-class DocumentWindow: NSWindow, DocumentWindowCascading {
+class DocumentWindow: NSWindow, CascadedWindow {
 	
 }

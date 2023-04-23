@@ -1,16 +1,17 @@
 import Cocoa
 
-class DocumentWindowController: NSWindowController, DocumentWindowControllerWithCascading {
-	
-	var windowFrameSavingAllowed: Bool = true
+class DocumentWindowController: NSWindowController, WindowControllerWithCascading {
+		
+	var isAllowedWindowFrameSaving: Bool = true
 	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
 	var centerWindowPositionWhenFirstWindowOpening: Bool = true
 	var windowFrameAutosaveName_alt: String = "Document"
 	
 	static var previousTopLeft: NSPoint?
 	
-	func documentController() -> NSDocumentController {
-		AppDelegate.sharedDocumentController
+	func targetWindows() -> [CascadedWindow] {
+		// If you use NSDocument based window architecture
+		NSDocumentController.shared.allCascadedWindows()
 	}
 	
 	func initialWindowSize() -> NSSize? {
@@ -27,13 +28,8 @@ class DocumentWindowController: NSWindowController, DocumentWindowControllerWith
 	
 	// MARK: -
 	
-	override func windowWillLoad() {
-		super.windowWillLoad()
-	}
-	
 	override func windowDidLoad() {
 		super.windowDidLoad()
-		// Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 		
 		// Setup window cascading
 		setupWindowCascading()
