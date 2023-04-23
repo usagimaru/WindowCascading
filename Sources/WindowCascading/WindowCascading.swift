@@ -5,18 +5,18 @@ public protocol CascadedWindow: NSWindow {}
 
 public protocol WindowControllerWithCascading: NSWindowController {
 	
-	/// To true, save the window frame to user defaults.
+	/// To true, save the window frame to UserDefaults.
 	var isAllowedWindowFrameSaving: Bool {get set}
-	/// To true, discard the last window frame info from the UserDefaults when all document windows are closed.
+	/// To true, discard the last window frame info from the UserDefaults when all managed windows are closed.
 	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool {get set}
 	/// To true, set the first window position to center of the screen.
 	var centerWindowPositionWhenFirstWindowOpening: Bool {get set}
-	/// Autosave Name
+	/// Alternative AutosaveName (do not include "window")
 	var windowFrameAutosaveName_alt: String {get}
 	
 	static var previousTopLeft: NSPoint? {get set}
 	
-	/// Return your windows
+	/// Return your managing windows
 	func targetWindows() -> [CascadedWindow]
 	
 	/// Setup the initial window size
@@ -54,7 +54,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 
 	 ## Note 1:
 	 It seems that calling `self.shouldCascadeWindows = true` with windowDidLoad() is too late:
-	 https://stackoverflow.com/questions/35827239/document-based-app-autosave-with-storyboards/43726191#43726191
+	 https://stackoverflow.com/questions/35827239/document-based-app-autosave-with-storyboards/43726191
 	 
 	 However, this is true by default, so there is no need to mention it if you are cascading.
 	 
