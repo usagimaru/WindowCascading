@@ -5,25 +5,25 @@ public protocol DocumentWindowCascading: NSWindow {}
 
 public protocol DocumentWindowControllerWithCascading: NSWindowController {
 	
-	/// Window Frameの自動保存の有効化/無効化
+	/// To true, save the window frame to user defaults.
 	var windowFrameSavingAllowed: Bool {get set}
-	/// 最後のウインドウを閉じる際に、保存した Window Frame を削除するか
+	/// To true, discard the last window frame info from the UserDefaults when all document windows are closed.
 	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool {get set}
-	/// 最初のウインドウが開く際に、位置を画面中央に配置するか（Window Frameの座標を復元しない）
+	/// To true, set the first window position to center of the screen.
 	var centerWindowPositionWhenFirstWindowOpening: Bool {get set}
 	/// Autosave Name
 	var windowFrameAutosaveName_alt: String {get}
 	
 	static var previousTopLeft: NSPoint? {get set}
 	
-	/// DocumentControllerを返す
+	/// Return your DocumentController
 	func documentController() -> NSDocumentController
 	
-	/// 初回ウインドウサイズを設定する
+	/// Setup the initial window size
 	func initialWindowSize() -> NSSize?
 	
 	/*
-	 ## WindowController の実装に以下をコピペするか、カスタマイズする:
+	 ## Paste the following code into your WindowController implementation:
 	 
 	 var windowFrameSavingAllowed: Bool = true
 	 var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
@@ -41,27 +41,27 @@ public protocol DocumentWindowControllerWithCascading: NSWindowController {
 	 }
 	 
 	 
-	 ## 使い方:
-	 - ドキュメントウインドウ (NSWindow) のサブクラスを `DocumentWindowCascading` に準拠させる
-	 - NSWindowController のサブクラスを `DocumentWindowControllerWithCascading` に準拠させる
-	 - windowDidLoad() で `setupWindowCascading()` をコールする
-	 + 必要なら `documentController()` を実装する
-	 + 必要なら `initialWindowSize()` を実装する
-	 
+	 ## Usage:
+	 - Make your document window (NSWindow) subclass to conform to `DocumentWindowCascading` protocol.
+	 - Make your NSWindowController subclass to conform to `DocumentWindowControllerWithCascading` protocol.
+	 - Call `setupWindowCascading()` method in `windowDidLoad()` of your WindowController implementation.
+	 + Implement `documentController()` if necessary.
+	 + Implement `initialWindowSize()` if necessary.
+	 	 
 	 
 	 ## Note 1:
-	 `self.shouldCascadeWindows = true` は windowDidLoad() でコールするのでは遅すぎるらしい：
+	 It seems that calling `self.shouldCascadeWindows = true` with windowDidLoad() is too late:
 	 https://stackoverflow.com/questions/35827239/document-based-app-autosave-with-storyboards/43726191#43726191
 	 
-	 ただしデフォルトで true なので、カスケーディングするならば特に触れなくても良い。
+	 However, this is true by default, so there is no need to mention it if you are cascading.
 	 
 	 
 	 ## Note 2:
-	 - AutosaveName に "window" を含めていると、カスケーディングがおかしくなるらしい
-	 - そもそも NSWindowController.windowFrameAutosaveName を使うとウインドウの位置がずれるっぽい？
+	 - It seems that cascading does not work properly when "window" text is included in AutosaveName.
+	 - To begin with, it seems that using NSWindowController.windowFrameAutosaveName causes the window to be out of position?
 	 
-	 NSWindowController.windowFrameAutosaveName を使わずにカスケーディングとフレーム保存を実現する方針をとる。
-	 "NSWindow Frame HOGE" をキーとするUserDefaultsを直接読み書きして対処する。
+	 So, based on the reference information, I decided to adopt a policy to achieve cascading and frame saving without using NSWindowController.windowFrameAutosaveName.
+	 This is handled by directly reading and writing UserDefaults with "NSWindow Frame FOOBAR" as the key.
 	 
 	 */
 }
@@ -85,9 +85,9 @@ public extension DocumentWindowControllerWithCascading {
 		return size
 	}
 	
-	/// 保存した Window Frame を文字列形式で復元
+	/// Restore the saved window frame in string format
 	private func persistableWindowFrameDescriptor() -> NSWindow.PersistableFrameDescriptor? {
-		// 参考：https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
+		// Ref: https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
 		UserDefaults.standard.string(forKey: self.persistentWindowFrameInfoKey)
 	}
 	
@@ -104,16 +104,16 @@ public extension DocumentWindowControllerWithCascading {
 	}
 	
 	func resetWindowFrame() {
-		// NSWindowController.windowFrameAutosaveName を使わずにカスケーディングとフレーム保存を実現する
-		// 参考：https://github.com/jessegrosjean/window.autosaveName/blob/master/Test/WindowController.m
+		// Cascading and frame saving without NSWindowController.windowFrameAutosaveName
+		// Ref: https://github.com/jessegrosjean/window.autosaveName/blob/master/Test/WindowController.m
 		
 		if let window = self.documentWindowCascading,
 		   let screen = window.screen {
 			if documentController().allDocumentWindowCascading().count == 0 {
-				// [1つ目のウインドウ]
+				// [First window]
 				
 				if let windowFrameDesc = persistableWindowFrameDescriptor() {
-					// 保存済みフレームがあればそれを復元し、画面中央に表示
+					// Restore window frame if auto saved
 					window.setFrame(from: windowFrameDesc)
 					
 					if self.centerWindowPositionWhenFirstWindowOpening {
@@ -121,7 +121,7 @@ public extension DocumentWindowControllerWithCascading {
 					}
 				}
 				else {
-					// ウインドウの初期サイズを設定し、画面中央に表示
+					// Set initial window size and centering
 					let initialWindowSize = initialWindowSize() ?? _initialWindowSize(screen)
 					window.setContentSize(initialWindowSize)
 					window.center()
@@ -130,12 +130,12 @@ public extension DocumentWindowControllerWithCascading {
 				Self.previousTopLeft = window.topLeft
 			}
 			else {
-				// [2つ目以降のウインドウ]
+				// [Other windows]
 				
-				// 保存済みフレームがあればそれを復元
+				// Restore window frame
 				window.setFrameUsingName(self.windowFrameAutosaveName_alt)
 				
-				// カスケードした位置を設定
+				// Cascade and set position
 				let topLeft = window.topLeft
 				let nextTopLeft = window.cascadeTopLeft(from: Self.previousTopLeft ?? topLeft)
 				
