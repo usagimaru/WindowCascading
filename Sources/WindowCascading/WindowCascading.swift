@@ -6,7 +6,7 @@ public protocol CascadedWindow: NSWindow {}
 public protocol WindowControllerWithCascading: NSWindowController {
 	
 	/// To true, save the window frame to UserDefaults.
-	var isAllowedWindowFrameSaving: Bool {get set}
+	var isWindowFrameSavingAllowed: Bool {get set}
 	/// To true, discard the last window frame info from the UserDefaults when all managed windows are closed.
 	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool {get set}
 	/// To true, set the first window position to center of the screen.
@@ -27,7 +27,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 
 	 import WindowControllerWithCascading
 	 
-	 var isAllowedWindowFrameSaving: Bool = true
+	 var isWindowFrameSavingAllowed: Bool = true
 	 var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
 	 var centerWindowPositionWhenFirstWindowOpening: Bool = true
 	 var windowFrameAutosaveName_alt: String = "Document"
@@ -69,28 +69,37 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 */
 }
 
+public extension CascadedWindow {
+	
+	/// Get window’s top-left coordinate
+	var topLeft: NSPoint {
+		NSPoint(x: frame.minX, y: frame.maxY)
+	}
+	
+}
+
 public extension WindowControllerWithCascading {
 	
 	var cascadedWindow: CascadedWindow? {
-		self.window as? CascadedWindow
+		window as? CascadedWindow
 	}
 	
 	/// Start point
 	func setupWindowCascading() {
 		setupObserversForCascading()
 		resetWindowFrame()
-		self.isAllowedWindowFrameSaving = true
+		isWindowFrameSavingAllowed = true
 	}
 	
 	func clearPersistentWindowFrameInfo() {
-		UserDefaults.standard.removeObject(forKey: self.persistentWindowFrameInfoKey)
+		UserDefaults.standard.removeObject(forKey: persistentWindowFrameInfoKey)
 	}
 	
 	func saveWindowFrame() {
-		guard self.isWindowLoaded,
-			  let window = self.cascadedWindow
+		guard isWindowLoaded,
+			  let cascadedWindow
 		else { return }
-		window.saveFrame(usingName: self.windowFrameAutosaveName_alt)
+		cascadedWindow.saveFrame(usingName: windowFrameAutosaveName_alt)
 	}
 	
 	
@@ -101,45 +110,45 @@ public extension WindowControllerWithCascading {
 		// Cascading and frame saving without NSWindowController.windowFrameAutosaveName
 		// Ref: https://github.com/jessegrosjean/window.autosaveName/blob/master/Test/WindowController.m
 		
-		guard let window = self.cascadedWindow,
-			  let screen = window.screen
+		guard let cascadedWindow,
+			  let screen = cascadedWindow.screen
 		else { return }
 		
-		if targetWindows().count == 0 {
+		if targetWindows().isEmpty {
 			// [First window]
 			
 			if let windowFrameDesc = persistableWindowFrameDescriptor() {
 				// Restore window frame if auto saved
-				window.setFrame(from: windowFrameDesc)
+				cascadedWindow.setFrame(from: windowFrameDesc)
 				
-				if self.centerWindowPositionWhenFirstWindowOpening {
-					window.center()
+				if centerWindowPositionWhenFirstWindowOpening {
+					cascadedWindow.center()
 				}
 			}
 			else {
 				// Set initial window size and centering
 				let initialWindowSize = initialWindowSize() ?? _initialWindowSize(screen)
-				window.setContentSize(initialWindowSize)
-				window.center()
+				cascadedWindow.setContentSize(initialWindowSize)
+				cascadedWindow.center()
 			}
 			
-			Self.previousTopLeft = window.topLeft
+			Self.previousTopLeft = cascadedWindow.topLeft
 		}
 		else {
 			// [Other windows]
 			
 			// Restore window frame
-			window.setFrameUsingName(self.windowFrameAutosaveName_alt)
+			cascadedWindow.setFrameUsingName(windowFrameAutosaveName_alt)
 			
 			// Cascade and set position
-			let topLeft = window.topLeft
-			let nextTopLeft = window.cascadeTopLeft(from: Self.previousTopLeft ?? topLeft)
+			let topLeft = cascadedWindow.topLeft
+			let nextTopLeft = cascadedWindow.cascadeTopLeft(from: Self.previousTopLeft ?? topLeft)
 			
 			if nextTopLeft.equalTo(topLeft) {
-				window.setFrameTopLeftPoint(nextTopLeft)
+				cascadedWindow.setFrameTopLeftPoint(nextTopLeft)
 			}
 			else {
-				window.setFrameTopLeftPoint(nextTopLeft)
+				cascadedWindow.setFrameTopLeftPoint(nextTopLeft)
 			}
 			
 			Self.previousTopLeft = nextTopLeft
@@ -152,7 +161,7 @@ public extension WindowControllerWithCascading {
 		
 		func observe(_ name: Notification.Name, handler: @escaping (_ notification: Notification) -> Void) {
 			NotificationCenter.default.addObserver(forName: name,
-												   object: self.cascadedWindow,
+												   object: cascadedWindow,
 												   queue: .main,
 												   using: handler)
 		}
@@ -161,7 +170,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadedWindow,
 				  (notification.object as? CascadedWindow) === window,
-				  self.isAllowedWindowFrameSaving else
+				  self.isWindowFrameSavingAllowed else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -171,7 +180,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadedWindow,
 				  (notification.object as? CascadedWindow) === window,
-				  self.isAllowedWindowFrameSaving else
+				  self.isWindowFrameSavingAllowed else
 			{ return }
 			
 			Self.previousTopLeft = window.topLeft
@@ -181,7 +190,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadedWindow,
 				  (notification.object as? CascadedWindow) === window,
-				  self.isAllowedWindowFrameSaving else
+				  self.isWindowFrameSavingAllowed else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -193,7 +202,7 @@ public extension WindowControllerWithCascading {
 				  let window = self.cascadedWindow,
 				  (notification.object as? CascadedWindow) === window,
 				  window.isKeyWindow,
-				  self.isAllowedWindowFrameSaving else
+				  self.isWindowFrameSavingAllowed else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -216,9 +225,7 @@ public extension WindowControllerWithCascading {
 	/// Remove event triggers
 	func removeObserversForCascading() {
 		func removeObserver(_ name: NSNotification.Name) {
-			NotificationCenter.default.removeObserver(self,
-													  name: name,
-													  object: self.cascadedWindow)
+			NotificationCenter.default.removeObserver(self, name: name, object: cascadedWindow)
 		}
 		
 		removeObserver(NSWindow.didBecomeMainNotification)
@@ -233,13 +240,13 @@ public extension WindowControllerWithCascading {
 	
 	/// Raw key string for `windowFrameAutosaveName`
 	private var persistentWindowFrameInfoKey: String {
-		"NSWindow Frame \(self.windowFrameAutosaveName_alt)"
+		"NSWindow Frame \(windowFrameAutosaveName_alt)"
 	}
 	
 	/// Restore the saved window frame in string format
 	private func persistableWindowFrameDescriptor() -> NSWindow.PersistableFrameDescriptor? {
 		// Ref: https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
-		UserDefaults.standard.string(forKey: self.persistentWindowFrameInfoKey)
+		UserDefaults.standard.string(forKey: persistentWindowFrameInfoKey)
 	}
 	
 	/// Default imp of `initialWindowSize()`
@@ -252,19 +259,10 @@ public extension WindowControllerWithCascading {
 	
 }
 
-public extension CascadedWindow {
-	
-	/// Get window’s top-left coordinate
-	var topLeft: NSPoint {
-		NSPoint(x: frame.minX, y: frame.maxY)
-	}
-	
-}
-
 public extension NSDocumentController {
 	
 	func allCascadedWindows() -> [CascadedWindow] {
-		self.documents.map {
+		documents.map {
 			$0.windowControllers.map { wc in
 				wc.window as? CascadedWindow
 			}

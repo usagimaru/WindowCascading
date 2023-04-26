@@ -2,7 +2,7 @@ import Cocoa
 
 class DocumentWindowController: NSWindowController, WindowControllerWithCascading {
 		
-	var isAllowedWindowFrameSaving: Bool = true
+	var isWindowFrameSavingAllowed: Bool = true
 	var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
 	var centerWindowPositionWhenFirstWindowOpening: Bool = true
 	var windowFrameAutosaveName_alt: String = "Document"
@@ -15,7 +15,7 @@ class DocumentWindowController: NSWindowController, WindowControllerWithCascadin
 	}
 	
 	func initialWindowSize() -> NSSize? {
-		if let screen = self.window?.screen {
+		if let screen = window?.screen {
 			let scale = 0.3
 			let screenSize = screen.visibleFrame.size
 			let size = NSSize(width: CGFloat(Int(screenSize.width * scale)),

@@ -13,7 +13,6 @@
 		512B05ED2913652C00C416DD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 512B05EB2913652C00C416DD /* Main.storyboard */; };
 		512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F52913654400C416DD /* DocumentWindowController.swift */; };
 		512B05F82913655100C416DD /* DocumentWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F72913655100C416DD /* DocumentWindow.swift */; };
-		512B05FA2913667200C416DD /* DocumentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F92913667200C416DD /* DocumentController.swift */; };
 		5183561C29F5898B00C15A6B /* WindowCascading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5183561B29F5898B00C15A6B /* WindowCascading.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,7 +25,6 @@
 		512B05EE2913652C00C416DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		512B05F52913654400C416DD /* DocumentWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWindowController.swift; sourceTree = "<group>"; };
 		512B05F72913655100C416DD /* DocumentWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWindow.swift; sourceTree = "<group>"; };
-		512B05F92913667200C416DD /* DocumentController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentController.swift; sourceTree = "<group>"; };
 		5183561B29F5898B00C15A6B /* WindowCascading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WindowCascading.swift; path = Sources/WindowCascading/WindowCascading.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -62,7 +60,6 @@
 			isa = PBXGroup;
 			children = (
 				512B05E32913652B00C416DD /* AppDelegate.swift */,
-				512B05F92913667200C416DD /* DocumentController.swift */,
 				512B05E72913652B00C416DD /* Document.swift */,
 				512B05F52913654400C416DD /* DocumentWindowController.swift */,
 				512B05F72913655100C416DD /* DocumentWindow.swift */,
@@ -152,7 +149,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				512B05F82913655100C416DD /* DocumentWindow.swift in Sources */,
-				512B05FA2913667200C416DD /* DocumentController.swift in Sources */,
 				512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */,
 				512B05E42913652B00C416DD /* AppDelegate.swift in Sources */,
 				512B05E82913652B00C416DD /* Document.swift in Sources */,

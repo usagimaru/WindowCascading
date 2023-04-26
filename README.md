@@ -12,7 +12,7 @@ Paste the following code into your WindowController implementation:
 ```swift
 import WindowControllerWithCascading
 
-var isAllowedWindowFrameSaving: Bool = true
+var isWindowFrameSavingAllowed: Bool = true
 var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
 var centerWindowPositionWhenFirstWindowOpening: Bool = true
 var windowFrameAutosaveName_alt: String = "Document"
@@ -41,7 +41,7 @@ func initialWindowSize() -> NSSize? {
 
 ## Customize
 
-- `windowFrameSavingAllowed: Bool`
+- `isWindowFrameSavingAllowed: Bool`
 	- Specifies whether the window coordinates after cascading should be saved in UserDefaults.
 - `windowFrameAutosaveName_alt: String`
 	- Return the unique name for AutosaveName (do not include the string "window" because of a bug in AppKit).
