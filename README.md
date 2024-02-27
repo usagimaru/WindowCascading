@@ -1,8 +1,24 @@
 # WindowCascading
 
-A protocol extension for NSWindowController that easily adds cascading window feature. This avoids some AppKit buggy behaviours.
+A protocol extension for NSWindowController that easily to add natural window cascading feature. This avoids some AppKit buggy behaviors.
 
 <img src="./screenshot.jpg" width=1246>
+
+## Why?
+
+Window cascading has long been an excellent Mac feature because it eliminates some of the inconvenience of our windowing experience. However, it works inexplicably strange in modern macOS, and developers seem to have more difficulty controlling it than one might imagine.
+
+<img src="./hig-1992.jpg" width=400 alt="Macintosh Human Interface Guidelines 1992, p.147">
+<img src="./hig-2004.jpg" width=400 alt="Apple Human Interface Guidelines 2004-03-27, p.116">
+
+- [`NSWindowController.windowFrameAutosaveName`](https://developer.apple.com/documentation/appkit/nswindowcontroller/1528616-windowframeautosavename) seems to break window cascading.
+
+- [`NSWindow.cascadeTopLeft(from:)`](https://developer.apple.com/documentation/appkit/nswindow/1419392-cascadetopleft) returns unnatural coordinates.
+
+- Due to the complexity of the NSWindow lifecycle, it is difficult for us to determine when a window size should be determined.
+
+- [`NSWindowController.showWindow(_:)`](https://developer.apple.com/documentation/appkit/nswindowcontroller/1534037-showwindow) and [`NSWindow.makeKeyAndOrderFront(_:)`](https://developer.apple.com/documentation/appkit/nswindow/1419208-makekeyandorderfront) are not called under the [NSWindowRestoration](https://developer.apple.com/documentation/appkit/nswindowrestoration) mechanism. It is necessary to properly grab the timing when the window is displayed.
+	- To know when a window is restored, we need to monitor [`NSApplication.didFinishRestoringWindowsNotification`](https://developer.apple.com/documentation/appkit/nsapplication/1526252-didfinishrestoringwindowsnotific). In other words, there are at least two triggers a window appears, and it is important to keep a proper watch on these.
 
 
 ## First Step
@@ -12,47 +28,66 @@ Paste the following code into your WindowController implementation:
 ```swift
 import WindowControllerWithCascading
 
-var isWindowFrameSavingAllowed: Bool = true
-var discardWindowFrameAutosaveWhenLastWindowClosed: Bool = false
-var centerWindowPositionWhenFirstWindowOpening: Bool = true
-var windowFrameAutosaveName_alt: String = "Document"
+var usesPersistentCascadableWindowFrameCache: Bool = true
+var discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool = false
+var resetsFrameWhenCascadableWindowRestored: Bool = true
+var centerCascadableWindowPositionWhenFirstOpening: Bool = false
+var cascadableWindowFrameAutosaveName: String = "Document"
 
 static var previousTopLeft: NSPoint?
 
-func targetWindows() -> [CascadedWindow] {
-	// If you use NSDocument based architecture
-	NSDocumentController.shared.allCascadedWindows()
+func targetCascadableWindows() -> [CascadableWindow] {
+	// You must manage target windows
+	// This line is valid if you are using the NSDocument-based window architecture
+	NSDocumentController.shared.cascadableWindows()
 }
 
-func initialWindowSize() -> NSSize? {
+func defaultCascadableWindowSize() -> NSSize? {
+	// Return the default window size if necessary
 	nil
 }
 
+override func windowDidLoad() {
+	super.windowDidLoad()
+	
+	// Setup window cascading (for NSWindowRestoration)
+	prepareForWindowRestoring()
+}
+
+override func showWindow(_ sender: Any?) {
+	super.showWindow(sender)
+	
+	// Setup window cascading
+	setupWindowCascading()
+}
 ```
 
 ## Usage
 
-- Make your managed window (NSWindow) subclass to conform to `CascadedWindow` protocol.
-- Make your NSWindowController subclass to conform to `WindowControllerWithCascading` protocol.
-- Implement `targetWindows()`.
-- Implement `initialWindowSize()` if necessary.
-- Call `setupWindowCascading()` method in `windowDidLoad()` of your WindowController implementation.
+- Make your subclass of NSWindow to conform to `CascadableWindow` protocol.
+- Make your subclass of NSWindowController to conform to `WindowControllerWithCascading` protocol.
+- Implement `targetCascadableWindows()` in your WindowController.
+- Call `prepareForWindowRestoring()` method in `windowDidLoad()` of your WindowController implementation.
+- Call `setupWindowCascading()` method in `showWindow(_:)` of your WindowController implementation.
+- Implement `defaultCascadableWindowSize()` in your WindowController if necessary.
 
 
 ## Customize
 
-- `isWindowFrameSavingAllowed: Bool`
+- `usesPersistentCascadableWindowFrameCache: Bool`
 	- Specifies whether the window coordinates after cascading should be saved in UserDefaults.
-- `windowFrameAutosaveName_alt: String`
-	- Return the unique name for AutosaveName (do not include the string "window" because of a bug in AppKit).
-- `targetWindows() -> [CascadedWindow]`
-	- Return your managing CascadedWindow instances.
-- `initialWindowSize() -> NSSize?`
-	- Return any initial window size if you want.
-- `discardWindowFrameAutosaveWhenLastWindowClosed: Bool`
+- `discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool`
 	- Specifies whether to delete the saved window frame from the UserDefaults when the last window is closed.
-- `centerWindowPositionWhenFirstWindowOpening: Bool`
+- `resetsFrameWhenCascadableWindowRestored: Bool`
+	- NSWindowRestoration support. Reset the cascadable window’s frame when it’s restored.
+- `centerCascadableWindowPositionWhenFirstOpening: Bool`
 	- Specifies whether to center the position of the first window when it opens.
+- `cascadableWindowFrameAutosaveName: String`
+	- Return the unique name for AutosaveName (do not include the string "window" because of a bug in AppKit).
+- `targetCascadableWindows() -> [CascadableWindow]`
+	- Return your managing CascadableWindow instances.
+- `defaultCascadableWindowSize() -> NSSize?`
+	- Return any initial window size if you want.
 
 ## Note
 
