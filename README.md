@@ -8,8 +8,12 @@ A protocol extension for NSWindowController that easily to add natural window ca
 
 Window cascading has long been an excellent Mac feature because it eliminates some of the inconvenience of our windowing experience. However, it works inexplicably strange in modern macOS, and developers seem to have more difficulty controlling it than one might imagine.
 
-<img src="./hig-1992.jpg" width=400 alt="Macintosh Human Interface Guidelines 1992, p.147">
-<img src="./hig-2004.jpg" width=400 alt="Apple Human Interface Guidelines 2004-03-27, p.116">
+<img src="./hig-1992.jpg" width=350 alt="HIG image (1992)">
+<img src="./hig-2004.jpg" width=350 alt="HIG image (2004)">
+
+*Macintosh Human Interface Guidelines 1992, p.147 / Apple Human Interface Guidelines 2004-03-27, p.116*
+
+---
 
 - [`NSWindowController.windowFrameAutosaveName`](https://developer.apple.com/documentation/appkit/nswindowcontroller/1528616-windowframeautosavename) seems to break window cascading.
 
