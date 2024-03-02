@@ -1,24 +1,32 @@
 import Cocoa
 
-class DocumentWindowController: NSWindowController, WindowControllerWithCascading {
+class DocumentWindowController: CascadableNSWindowController {
 	
 	/* ================== WindowControllerWithCascading >> ================== */
 	
-	var usesPersistentCascadableWindowFrames: Bool = true
-	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool = false
-	var resetsFrameWhenCascadableWindowRestored: Bool = true
-	var centerCascadableWindowPositionWhenFirstOpening: Bool = false
-	var cascadableWindowFrameAutosaveName: String = "Document"
+	override var usesPersistentCascadableWindowFrame: Bool {
+		true
+	}
+	override var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool {
+		false
+	}
+	override var resetsFrameWhenCascadableWindowRestored: Bool {
+		true
+	}
+	override var centerCascadableWindowPositionWhenFirstOpening: Bool {
+		false
+	}
+	override var cascadableWindowFrameAutosaveName: String {
+		"Document"
+	}
 	
-	static var previousTopLeft: NSPoint?
-	
-	func targetCascadableWindows() -> [CascadableWindow] {
+	override func targetCascadableWindows() -> [CascadableWindow] {
 		// You must manage target windows
 		// This line is valid if you are using the NSDocument-based window architecture
 		NSDocumentController.shared.cascadableWindows()
 	}
 	
-	func defaultCascadableWindowSize() -> NSSize? {
+	override func defaultCascadableWindowSize() -> NSSize? {
 		if let screen = window?.screen {
 			let scale = 0.3
 			let screenSize = screen.visibleFrame.size
@@ -37,16 +45,10 @@ class DocumentWindowController: NSWindowController, WindowControllerWithCascadin
 	
 	override func windowDidLoad() {
 		super.windowDidLoad()
-		
-		// Setup window cascading (for NSWindowRestoration)
-		prepareForWindowRestoring()
 	}
 	
 	override func showWindow(_ sender: Any?) {
 		super.showWindow(sender)
-		
-		// Setup window cascading
-		setupWindowCascading()
 	}
 	
 }

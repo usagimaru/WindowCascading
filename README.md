@@ -27,16 +27,26 @@ Window cascading has long been an excellent Mac feature because it eliminates so
 
 ## First Step
 
-Paste the following code into your WindowController implementation:
+Paste the following code into your WindowController implementation or subclassing from CascadableNSWindowController:
 
 ```swift
 import WindowControllerWithCascading
 
-var usesPersistentCascadableWindowFrameCache: Bool = true
-var discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool = false
-var resetsFrameWhenCascadableWindowRestored: Bool = true
-var centerCascadableWindowPositionWhenFirstOpening: Bool = false
-var cascadableWindowFrameAutosaveName: String = "Document"
+ var usesPersistentCascadableWindowFrame: Bool {
+	true
+ }
+ var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool {
+	false
+ }
+ var resetsFrameWhenCascadableWindowRestored: Bool {
+	true
+ }
+ var centerCascadableWindowPositionWhenFirstOpening: Bool {
+	false
+ }
+ var cascadableWindowFrameAutosaveName: String {
+	"Document"
+ }
 
 static var previousTopLeft: NSPoint?
 
@@ -69,7 +79,7 @@ override func showWindow(_ sender: Any?) {
 ## Usage
 
 - Make your subclass of NSWindow to conform to `CascadableWindow` protocol.
-- Make your subclass of NSWindowController to conform to `WindowControllerWithCascading` protocol.
+- Make your subclass of NSWindowController to conform to `WindowControllerWithCascading` protocol or subclassing it from `CascadableNSWindowController`.
 - Implement `targetCascadableWindows()` in your WindowController.
 - Call `prepareForWindowRestoring()` method in `windowDidLoad()` of your WindowController implementation.
 - Call `setupWindowCascading()` method in `showWindow(_:)` of your WindowController implementation.
@@ -78,9 +88,9 @@ override func showWindow(_ sender: Any?) {
 
 ## Customize
 
-- `usesPersistentCascadableWindowFrameCache: Bool`
+- `usesPersistentCascadableWindowFrame: Bool`
 	- Specifies whether the window coordinates after cascading should be saved in UserDefaults.
-- `discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool`
+- `discardsPersistentCascadableWindowFrameWhenLastClosed: Bool`
 	- Specifies whether to delete the saved window frame from the UserDefaults when the last window is closed.
 - `resetsFrameWhenCascadableWindowRestored: Bool`
 	- NSWindowRestoration support. Reset the cascadable window’s frame when it’s restored.
