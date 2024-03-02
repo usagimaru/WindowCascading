@@ -14,6 +14,7 @@
 		512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F52913654400C416DD /* DocumentWindowController.swift */; };
 		512B05F82913655100C416DD /* DocumentWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F72913655100C416DD /* DocumentWindow.swift */; };
 		5183561C29F5898B00C15A6B /* WindowCascading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5183561B29F5898B00C15A6B /* WindowCascading.swift */; };
+		51DA4DDA2B92B80100E67C5E /* CascadableNSWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		512B05F52913654400C416DD /* DocumentWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWindowController.swift; sourceTree = "<group>"; };
 		512B05F72913655100C416DD /* DocumentWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWindow.swift; sourceTree = "<group>"; };
 		5183561B29F5898B00C15A6B /* WindowCascading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WindowCascading.swift; path = Sources/WindowCascading/WindowCascading.swift; sourceTree = "<group>"; };
+		51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CascadableNSWindowController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				5183561B29F5898B00C15A6B /* WindowCascading.swift */,
+				51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */,
 			);
 			name = WindowCascading;
 			sourceTree = "<group>";
@@ -106,7 +109,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1400;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					512B05DF2913652B00C416DD = {
 						CreatedOnToolsVersion = 14.0.1;
@@ -150,6 +153,7 @@
 			files = (
 				512B05F82913655100C416DD /* DocumentWindow.swift in Sources */,
 				512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */,
+				51DA4DDA2B92B80100E67C5E /* CascadableNSWindowController.swift in Sources */,
 				512B05E42913652B00C416DD /* AppDelegate.swift in Sources */,
 				512B05E82913652B00C416DD /* Document.swift in Sources */,
 				5183561C29F5898B00C15A6B /* WindowCascading.swift in Sources */,
@@ -203,9 +207,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -220,7 +226,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -263,9 +269,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -274,7 +282,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -294,6 +302,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = R6RZ6S2FLK;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -324,6 +333,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = R6RZ6S2FLK;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;

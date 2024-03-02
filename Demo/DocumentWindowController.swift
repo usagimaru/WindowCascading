@@ -4,8 +4,8 @@ class DocumentWindowController: NSWindowController, WindowControllerWithCascadin
 	
 	/* ================== WindowControllerWithCascading >> ================== */
 	
-	var usesPersistentCascadableWindowFrameCache: Bool = true
-	var discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool = false
+	var usesPersistentCascadableWindowFrames: Bool = true
+	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool = false
 	var resetsFrameWhenCascadableWindowRestored: Bool = true
 	var centerCascadableWindowPositionWhenFirstOpening: Bool = false
 	var cascadableWindowFrameAutosaveName: String = "Document"

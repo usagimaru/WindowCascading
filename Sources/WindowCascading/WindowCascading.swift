@@ -6,9 +6,9 @@ public protocol CascadableWindow: NSWindow {}
 public protocol WindowControllerWithCascading: NSWindowController {
 	
 	/// To true, save the window frame to UserDefaults.
-	var usesPersistentCascadableWindowFrameCache: Bool { get set }
+	var usesPersistentCascadableWindowFrames: Bool { get set }
 	/// To true, discard the last window frame info from the UserDefaults when all managed windows are closed.
-	var discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool { get set }
+	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool { get set }
 	/// To true, auto reset the window frame when run the NSWindowRestoration by the system
 	var resetsFrameWhenCascadableWindowRestored: Bool { get set }
 	
@@ -293,7 +293,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrameCache else
+				  self.usesPersistentCascadableWindowFrames else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -303,7 +303,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrameCache else
+				  self.usesPersistentCascadableWindowFrames else
 			{ return }
 			
 			Self.previousTopLeft = window.topLeft
@@ -313,7 +313,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrameCache else
+				  self.usesPersistentCascadableWindowFrames else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -325,7 +325,7 @@ public extension WindowControllerWithCascading {
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  window.isKeyWindow,
-				  self.usesPersistentCascadableWindowFrameCache else
+				  self.usesPersistentCascadableWindowFrames else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -337,7 +337,7 @@ public extension WindowControllerWithCascading {
 		
 		observe(NSWindow.willCloseNotification) { notification in
 			// Discard window size cache if target window count would be zero
-			if self.discardsPersistentCascadableWindowFrameCacheWhenLastClosed,
+			if self.discardsPersistentCascadableWindowFrameWhenLastClosed,
 			   (notification.object as? CascadableWindow) === self.cascadableWindow,
 			   self.targetCascadableWindows().count == 1 {
 				self.clearPersistentWindowFrameInfo()
