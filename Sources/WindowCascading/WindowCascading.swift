@@ -6,14 +6,14 @@ public protocol CascadableWindow: NSWindow {}
 public protocol WindowControllerWithCascading: NSWindowController {
 	
 	/// To true, save the window frame to UserDefaults.
-	var usesPersistentCascadableWindowFrames: Bool { get set }
+	var usesPersistentCascadableWindowFrame: Bool { get }
 	/// To true, discard the last window frame info from the UserDefaults when all managed windows are closed.
-	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool { get set }
+	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool { get }
 	/// To true, auto reset the window frame when run the NSWindowRestoration by the system
-	var resetsFrameWhenCascadableWindowRestored: Bool { get set }
+	var resetsFrameWhenCascadableWindowRestored: Bool { get }
 	
 	/// To true, set the first window position to center of the screen.
-	var centerCascadableWindowPositionWhenFirstOpening: Bool { get set }
+	var centerCascadableWindowPositionWhenFirstOpening: Bool { get }
 	/// Alternative AutosaveName (do not include the word "window" because to work around a bug in AppKit)
 	var cascadableWindowFrameAutosaveName: String { get }
 	
@@ -26,15 +26,25 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	func defaultCascadableWindowSize() -> NSSize?
 	
 	/*
-	 ## Paste the following code into your WindowController implementation:
+	 ## Paste the following code into your WindowController implementation or subclassing from CascadableNSWindowController:
 	 
 	 import WindowControllerWithCascading
 	 
-	 var usesPersistentCascadableWindowFrameCache: Bool = true
-	 var discardsPersistentCascadableWindowFrameCacheWhenLastClosed: Bool = false
-	 var resetsFrameWhenCascadableWindowRestored: Bool = true
-	 var centerCascadableWindowPositionWhenFirstOpening: Bool = false
-	 var cascadableWindowFrameAutosaveName: String = "Document"
+	 var usesPersistentCascadableWindowFrame: Bool {
+		true
+	 }
+	 var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool {
+		false
+	 }
+	 var resetsFrameWhenCascadableWindowRestored: Bool {
+		true
+	 }
+	 var centerCascadableWindowPositionWhenFirstOpening: Bool {
+		false
+	 }
+	 var cascadableWindowFrameAutosaveName: String {
+		"Document"
+	 }
 	 
 	 static var previousTopLeft: NSPoint?
 	 
@@ -67,7 +77,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 
 	 ## Usage:
 	 - Make your subclass of NSWindow to conform to `CascadableWindow` protocol.
-	 - Make your subclass of NSWindowController to conform to `WindowControllerWithCascading` protocol.
+	 - Make your subclass of NSWindowController to conform to `WindowControllerWithCascading` protocol or subclassing it from `CascadableNSWindowController`.
 	 - Implement `targetCascadableWindows()` in your WindowController.
 	 - Call `prepareForWindowRestoring()` method in `windowDidLoad()` of your WindowController implementation.
 	 - Call `setupWindowCascading()` method in `showWindow(_:)` of your WindowController implementation.
@@ -214,6 +224,25 @@ public extension WindowControllerWithCascading {
 		resetCascadableWindowFrame()
 	}
 	
+	
+	// MARK: - Autosave
+	
+	private func cascadableWindowFrameAutosaveName_() -> String {
+		// Not certain if this process is effective.
+		cascadableWindowFrameAutosaveName.replacingOccurrences(of: "window", with: "w.i.n.d.o.w", options: .caseInsensitive)
+	}
+	
+	/// Raw key string for `windowFrameAutosaveName`
+	var persistentWindowFrameInfoKey: String {
+		"NSWindow Frame \(cascadableWindowFrameAutosaveName_())"
+	}
+	
+	/// Restore the saved window frame in string format
+	func persistableWindowFrameDescriptor() -> NSWindow.PersistableFrameDescriptor? {
+		// Ref: https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
+		UserDefaults.standard.string(forKey: persistentWindowFrameInfoKey)
+	}
+	
 	func clearPersistentWindowFrameInfo() {
 		UserDefaults.standard.removeObject(forKey: persistentWindowFrameInfoKey)
 	}
@@ -293,7 +322,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrames else
+				  self.usesPersistentCascadableWindowFrame else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -303,7 +332,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrames else
+				  self.usesPersistentCascadableWindowFrame else
 			{ return }
 			
 			Self.previousTopLeft = window.topLeft
@@ -313,7 +342,7 @@ public extension WindowControllerWithCascading {
 			guard self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
-				  self.usesPersistentCascadableWindowFrames else
+				  self.usesPersistentCascadableWindowFrame else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -325,7 +354,7 @@ public extension WindowControllerWithCascading {
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  window.isKeyWindow,
-				  self.usesPersistentCascadableWindowFrames else
+				  self.usesPersistentCascadableWindowFrame else
 			{ return }
 			
 			self.saveWindowFrame()
@@ -356,24 +385,6 @@ public extension WindowControllerWithCascading {
 		removeObserver(NSWindow.didResizeNotification)
 		removeObserver(NSWindow.didMoveNotification)
 		removeObserver(NSWindow.willCloseNotification)
-	}
-	
-	
-	// MARK: -
-	
-	/// Raw key string for `windowFrameAutosaveName`
-	private var persistentWindowFrameInfoKey: String {
-		"NSWindow Frame \(cascadableWindowFrameAutosaveName_())"
-	}
-	
-	/// Restore the saved window frame in string format
-	private func persistableWindowFrameDescriptor() -> NSWindow.PersistableFrameDescriptor? {
-		// Ref: https://github.com/coteditor/CotEditor/blob/f9c140ab08fd6acd24ebe65fd01420f29ba367fd/CotEditor/Sources/DocumentWindowController.swift
-		UserDefaults.standard.string(forKey: persistentWindowFrameInfoKey)
-	}
-	
-	private func cascadableWindowFrameAutosaveName_() -> String {
-		cascadableWindowFrameAutosaveName.replacingOccurrences(of: "window", with: "w.i.n.d.o.w", options: .caseInsensitive)
 	}
 	
 	/// Default imp of `defaultCascadableWindowSize()`

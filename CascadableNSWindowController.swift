@@ -1,15 +1,27 @@
 #if os(macOS)
 import Cocoa
 
+open class CascadableNSWindow: NSWindow, CascadableWindow {}
+
 open class CascadableNSWindowController: NSWindowController, WindowControllerWithCascading {
 	
 	/* ================== WindowControllerWithCascading >> ================== */
 	
-	open var usesPersistentCascadableWindowFrames: Bool = true
-	open var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool = false
-	open var resetsFrameWhenCascadableWindowRestored: Bool = true
-	open var centerCascadableWindowPositionWhenFirstOpening: Bool = false
-	open var cascadableWindowFrameAutosaveName: String = "Document"
+	open var usesPersistentCascadableWindowFrame: Bool {
+		true
+	}
+	open var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool {
+		false
+	}
+	open var resetsFrameWhenCascadableWindowRestored: Bool {
+		true
+	}
+	open var centerCascadableWindowPositionWhenFirstOpening: Bool {
+		false
+	}
+	open var cascadableWindowFrameAutosaveName: String {
+		"Document"
+	}
 	
 	public static var previousTopLeft: NSPoint?
 	
@@ -47,7 +59,5 @@ open class CascadableNSWindowController: NSWindowController, WindowControllerWit
 	}
 
 }
-
-open class CascadableNSWindow: NSWindow, CascadableWindow {}
 
 #endif
