@@ -28,7 +28,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	/*
 	 ## Paste the following code into your WindowController implementation or subclassing from CascadableNSWindowController:
 	 
-	 import WindowControllerWithCascading
+	 import WindowCascading
 	 
 	 var usesPersistentCascadableWindowFrame: Bool {
 		true

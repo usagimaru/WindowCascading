@@ -30,7 +30,7 @@ Window cascading has long been an excellent Mac feature because it eliminates so
 Paste the following code into your WindowController implementation or subclassing from CascadableNSWindowController:
 
 ```swift
-import WindowControllerWithCascading
+import WindowCascading
 
  var usesPersistentCascadableWindowFrame: Bool {
 	true

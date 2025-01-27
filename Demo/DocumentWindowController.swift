@@ -14,7 +14,7 @@ class DocumentWindowController: CascadableNSWindowController {
 		true
 	}
 	override var centerCascadableWindowPositionWhenFirstOpening: Bool {
-		false
+		true
 	}
 	override var cascadableWindowFrameAutosaveName: String {
 		"Document"
