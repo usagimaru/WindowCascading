@@ -20,7 +20,7 @@ open class CascadableNSWindowController: NSWindowController, WindowControllerWit
 		false
 	}
 	open var cascadableWindowFrameAutosaveName: String {
-		"Document"
+		"DocumentWindow"
 	}
 	
 	public static var previousTopLeft: NSPoint?
@@ -47,14 +47,14 @@ open class CascadableNSWindowController: NSWindowController, WindowControllerWit
 	open override func windowDidLoad() {
 		super.windowDidLoad()
 		
-		// Setup window cascading (for NSWindowRestoration)
+		// WindowControllerWithCascading: Setup window cascading (for NSWindowRestoration)
 		prepareForWindowRestoring()
 	}
 	
 	open override func showWindow(_ sender: Any?) {
 		super.showWindow(sender)
 		
-		// Setup window cascading
+		// WindowControllerWithCascading: Setup window cascading
 		setupWindowCascading()
 	}
 

@@ -14,10 +14,10 @@ class DocumentWindowController: CascadableNSWindowController {
 		true
 	}
 	override var centerCascadableWindowPositionWhenFirstOpening: Bool {
-		true
+		false
 	}
 	override var cascadableWindowFrameAutosaveName: String {
-		"Document"
+		"DocumentWindow"
 	}
 	
 	override func targetCascadableWindows() -> [CascadableWindow] {
@@ -26,29 +26,6 @@ class DocumentWindowController: CascadableNSWindowController {
 		NSDocumentController.shared.cascadableWindows()
 	}
 	
-	override func defaultCascadableWindowSize() -> NSSize? {
-		if let screen = window?.screen {
-			let scale = 0.3
-			let screenSize = screen.visibleFrame.size
-			let size = NSSize(width: CGFloat(Int(screenSize.width * scale)),
-							  height: CGFloat(Int(screenSize.height * scale)))
-			
-			return size
-		}
-		return nil
-	}
-	
 	/* ================== << WindowControllerWithCascading ================== */
-	
-	
-	// MARK: -
-	
-	override func windowDidLoad() {
-		super.windowDidLoad()
-	}
-	
-	override func showWindow(_ sender: Any?) {
-		super.showWindow(sender)
-	}
 	
 }

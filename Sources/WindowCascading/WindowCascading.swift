@@ -5,24 +5,24 @@ public protocol CascadableWindow: NSWindow {}
 
 public protocol WindowControllerWithCascading: NSWindowController {
 	
-	/// To true, save the window frame to UserDefaults.
+	/// If true then, save the window frame to UserDefaults. (true is recommended)
 	var usesPersistentCascadableWindowFrame: Bool { get }
-	/// To true, discard the last window frame info from the UserDefaults when all managed windows are closed.
+	/// If true then, discard the last window frame info from the UserDefaults when all managed windows are closed. (false is recommended)
 	var discardsPersistentCascadableWindowFrameWhenLastClosed: Bool { get }
-	/// To true, auto reset the window frame when run the NSWindowRestoration by the system
+	/// If true then, auto reset the window frame when run the NSWindowRestoration by the system. (true is recommended)
 	var resetsFrameWhenCascadableWindowRestored: Bool { get }
-	
-	/// To true, set the first window position to center of the screen.
+	/// If true then, set the first window position to center of the screen.
 	var centerCascadableWindowPositionWhenFirstOpening: Bool { get }
+	
 	/// Alternative AutosaveName (do not include the word "window" because to work around a bug in AppKit)
 	var cascadableWindowFrameAutosaveName: String { get }
 	
 	static var previousTopLeft: NSPoint? { get set }
 	
-	/// Return your managing windows
+	/// Return your managing/loaded windows
 	func targetCascadableWindows() -> [CascadableWindow]
 	
-	/// Setup the initial window size
+	/// Returns the initial window size
 	func defaultCascadableWindowSize() -> NSSize?
 	
 	/*
@@ -43,7 +43,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 		false
 	 }
 	 var cascadableWindowFrameAutosaveName: String {
-		"Document"
+		"DocumentWindow"
 	 }
 	 
 	 static var previousTopLeft: NSPoint?
@@ -201,10 +201,6 @@ public extension CascadableWindow {
 
 public extension WindowControllerWithCascading {
 	
-	var cascadableWindow: CascadableWindow? {
-		window as? CascadableWindow
-	}
-	
 	/// Start point for NSWindowRestoration, call this in NSWindowController.windowDidLoad() after super’s called.
 	func prepareForWindowRestoring() {
 		if resetsFrameWhenCascadableWindowRestored {
@@ -222,6 +218,13 @@ public extension WindowControllerWithCascading {
 	func setupWindowCascading() {
 		setupObserversForCascading()
 		resetCascadableWindowFrame()
+	}
+	
+	
+	// MARK: -
+	
+	var cascadableWindow: CascadableWindow? {
+		window as? CascadableWindow
 	}
 	
 	
@@ -366,10 +369,11 @@ public extension WindowControllerWithCascading {
 		
 		observe(NSWindow.willCloseNotification) { notification in
 			// Discard window size cache if target window count would be zero
-			if self.discardsPersistentCascadableWindowFrameWhenLastClosed,
-			   (notification.object as? CascadableWindow) === self.cascadableWindow,
-			   self.targetCascadableWindows().count == 1 {
-				self.clearPersistentWindowFrameInfo()
+			if let window = self.cascadableWindow, (notification.object as? CascadableWindow) === window {
+				if self.discardsPersistentCascadableWindowFrameWhenLastClosed && self.targetCascadableWindows().count == 1 {
+					Self.previousTopLeft = window.topLeft
+					self.clearPersistentWindowFrameInfo()
+				}
 			}
 		}
 	}
