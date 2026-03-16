@@ -24,6 +24,7 @@ open class CascadableNSWindowController: NSWindowController, WindowControllerWit
 	}
 	
 	public static var previousTopLeft: NSPoint?
+	public var cascadingObserverTokens = [NSObjectProtocol]()
 	
 	open func targetCascadableWindows() -> [CascadableWindow] {
 		// You must manage target windows on subclass

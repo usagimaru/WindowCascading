@@ -19,6 +19,9 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	
 	static var previousTopLeft: NSPoint? { get set }
 	
+	/// Tokens for notification observers (used for proper unregistration)
+	var cascadingObserverTokens: [NSObjectProtocol] { get set }
+	
 	/// Return your managing/loaded windows
 	func targetCascadableWindows() -> [CascadableWindow]
 	
@@ -47,6 +50,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 }
 	 
 	 static var previousTopLeft: NSPoint?
+	 var cascadingObserverTokens = [NSObjectProtocol]()
 	 
 	 func targetCascadableWindows() -> [CascadableWindow] {
 		 // You must manage target windows
@@ -117,25 +121,27 @@ public extension CascadableWindow {
 	
 	/// Window cascading method with modified logic
 	func cascade(from topLeftPoint: NSPoint) -> NSPoint {
-		validateWindowFrameForCascading(cascadeTopLeft(from: topLeftPoint))
+		validatedTopLeft(cascadeTopLeft(from: topLeftPoint), resetsToLeadingEdge: true)
 	}
 	
-	internal func validateWindowFrameForCascading(_ topLeftPoint: NSPoint) -> NSPoint {
-		let previousFrame = frame
+	/// Validate and adjust the top-left point so that the window fits within the visible screen area.
+	/// - Parameter resetsToLeadingEdge: If true, resets X to the leading edge of the screen (with offset) when the window exceeds the trailing edge. This is used for cascading wrap-around behavior.
+	internal func validatedTopLeft(_ topLeftPoint: NSPoint, resetsToLeadingEdge: Bool) -> NSPoint {
+		let windowFrame = frame
 		
 		// Tentatively calculated top-left coordinates and window frame
-		let tempTopLeft = topLeftPoint
-		let tempFrame = frame(with: tempTopLeft, size: previousFrame.size)
+		let tempFrame = frame(with: topLeftPoint, size: windowFrame.size)
 		
 		guard let screenFrame = screen?.visibleFrame
-		else { return tempTopLeft }
+		else { return topLeftPoint }
 		
-		if screenFrame.contains(tempFrame) {
-			return tempTopLeft
+		if screenFrame.contains(tempFrame) && tempFrame.width != screenFrame.width {
+			return topLeftPoint
 		}
 		
+		var newTopLeft = topLeftPoint
+		
 		// If window extends beyond bottom of screen, set Y to top of the screen
-		var newTopLeft = tempTopLeft
 		if tempFrame.minY < screenFrame.minY {
 			newTopLeft.y = screenFrame.maxY
 		}
@@ -145,53 +151,27 @@ public extension CascadableWindow {
 			newTopLeft.x = screenFrame.minX
 		}
 		
-		// If window extends beyond right of screen, set X to minX of the screen frame and add the diff of both
+		// If window extends beyond right of screen
 		if tempFrame.maxX > screenFrame.maxX {
-			let diff = tempFrame.maxX - screenFrame.maxX
-			newTopLeft.x = screenFrame.minX + diff
+			if resetsToLeadingEdge {
+				// Reset X toward the leading edge with the overflow as offset (cascade wrap-around)
+				let diff = tempFrame.maxX - screenFrame.maxX
+				newTopLeft.x = screenFrame.minX + diff
+			}
+			else {
+				// Fit the window to the trailing edge
+				newTopLeft.x = screenFrame.maxX - windowFrame.size.width
+			}
 		}
 		
-		// If the window size matches the valid screen size, set X to minX of the screen frame
-		if tempFrame.size == screenFrame.size {
+		// Snap the window origin to the screen edge when the window spans the full screen dimension
+		if tempFrame.width == screenFrame.width {
+			// Window fills the screen horizontally — align its left edge to the screen's leading edge
 			newTopLeft.x = screenFrame.minX
 		}
-		
-		return newTopLeft
-	}
-	
-	internal func validateWindowFrameToFitOnScreen(_ topLeftPoint: NSPoint) -> NSPoint {
-		let previousFrame = frame
-		
-		// Tentatively calculated top-left coordinates and window frame
-		let tempTopLeft = topLeftPoint
-		let tempFrame = frame(with: tempTopLeft, size: previousFrame.size)
-		
-		guard let screenFrame = screen?.visibleFrame
-		else { return tempTopLeft }
-		
-		if screenFrame.contains(tempFrame) {
-			return tempTopLeft
-		}
-		
-		// If window extends beyond bottom of screen, set Y to top of the screen
-		var newTopLeft = tempTopLeft
-		if tempFrame.minY < screenFrame.minY {
+		else if tempFrame.height == screenFrame.height {
+			// Window fills the screen vertically — align its top edge to the screen's top edge
 			newTopLeft.y = screenFrame.maxY
-		}
-		
-		// If window extends beyond left of screen, set X to minX of the screen frame
-		if tempFrame.minX < screenFrame.minX {
-			newTopLeft.x = screenFrame.minX
-		}
-		
-		// If window extends beyond right of screen, set X to maxX minus window width
-		if tempFrame.maxX > screenFrame.maxX {
-			newTopLeft.x = screenFrame.maxX - previousFrame.width
-		}
-		
-		// If the window size matches the valid screen size, set X to minX of the screen frame
-		if tempFrame.size == screenFrame.size {
-			newTopLeft.x = screenFrame.minX
 		}
 		
 		return newTopLeft
@@ -280,7 +260,7 @@ public extension WindowControllerWithCascading {
 					cascadableWindow.center()
 				}
 				else {
-					let topLeft = cascadableWindow.validateWindowFrameToFitOnScreen(cascadableWindow.topLeft)
+					let topLeft = cascadableWindow.validatedTopLeft(cascadableWindow.topLeft, resetsToLeadingEdge: false)
 					cascadableWindow.setFrameTopLeftPoint(topLeft)
 				}
 			}
@@ -313,12 +293,12 @@ public extension WindowControllerWithCascading {
 	func setupObserversForCascading() {
 		removeObserversForCascading()
 		
-		@discardableResult
-		func observe(_ name: Notification.Name, handler: @escaping (_ notification: Notification) -> Void) -> NSObjectProtocol {
-			NotificationCenter.default.addObserver(forName: name,
-												   object: cascadableWindow,
-												   queue: .main,
-												   using: handler)
+		func observe(_ name: Notification.Name, handler: @escaping (_ notification: Notification) -> Void) {
+			let token = NotificationCenter.default.addObserver(forName: name,
+															   object: cascadableWindow,
+															   queue: .main,
+															   using: handler)
+			cascadingObserverTokens.append(token)
 		}
 		
 		observe(NSWindow.didBecomeMainNotification) { notification in
@@ -380,15 +360,10 @@ public extension WindowControllerWithCascading {
 	
 	/// Remove event triggers
 	func removeObserversForCascading() {
-		func removeObserver(_ name: NSNotification.Name) {
-			NotificationCenter.default.removeObserver(self, name: name, object: cascadableWindow)
+		for token in cascadingObserverTokens {
+			NotificationCenter.default.removeObserver(token)
 		}
-		
-		removeObserver(NSWindow.didBecomeMainNotification)
-		removeObserver(NSWindow.didBecomeKeyNotification)
-		removeObserver(NSWindow.didResizeNotification)
-		removeObserver(NSWindow.didMoveNotification)
-		removeObserver(NSWindow.willCloseNotification)
+		cascadingObserverTokens.removeAll()
 	}
 	
 	/// Default imp of `defaultCascadableWindowSize()`
