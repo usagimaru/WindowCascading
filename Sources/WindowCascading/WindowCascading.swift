@@ -51,7 +51,7 @@ public protocol WindowControllerWithCascading: NSWindowController {
 	 
 	 static var previousTopLeft: NSPoint?
 	 var cascadingObserverTokens = [NSObjectProtocol]()
-	 
+
 	 func targetCascadableWindows() -> [CascadableWindow] {
 		 // You must manage target windows
 		 // This line is valid if you are using the NSDocument-based window architecture
@@ -181,16 +181,19 @@ public extension CascadableWindow {
 
 public extension WindowControllerWithCascading {
 	
-	/// Start point for NSWindowRestoration, call this in NSWindowController.windowDidLoad() after super’s called.
+	/// Start point for NSWindowRestoration, call this in NSWindowController.windowDidLoad() after super's called.
 	func prepareForWindowRestoring() {
 		if resetsFrameWhenCascadableWindowRestored {
-			NotificationCenter.default.removeObserver(self, name: NSApplication.didFinishRestoringWindowsNotification, object: NSApp)
-			
 			// When restoring a window does not call showWindow(_:) and makeKeyAndOrderFront(_:) by the system. Instead, it detects with `NSApplication.didFinishRestoringWindowsNotification` notification.
-			NotificationCenter.default.addObserver(forName: NSApplication.didFinishRestoringWindowsNotification, object: NSApp, queue: .main) { notif in
+			// This observer is stored in cascadingObserverTokens and will be cleaned up either:
+			// - When the notification fires and setupObserversForCascading() is called (which clears all tokens first), or
+			// - When showWindow() calls setupObserversForCascading() in the normal (non-restoration) flow.
+			let token = NotificationCenter.default.addObserver(forName: NSApplication.didFinishRestoringWindowsNotification, object: NSApp, queue: .main) { [weak self] notif in
+				guard let self else { return }
 				self.setupObserversForCascading()
 				self.resetCascadableWindowFrame()
 			}
+			cascadingObserverTokens.append(token)
 		}
 	}
 	
@@ -292,7 +295,7 @@ public extension WindowControllerWithCascading {
 	/// Setup event triggers
 	func setupObserversForCascading() {
 		removeObserversForCascading()
-		
+
 		func observe(_ name: Notification.Name, handler: @escaping (_ notification: Notification) -> Void) {
 			let token = NotificationCenter.default.addObserver(forName: name,
 															   object: cascadableWindow,
@@ -300,60 +303,66 @@ public extension WindowControllerWithCascading {
 															   using: handler)
 			cascadingObserverTokens.append(token)
 		}
-		
-		observe(NSWindow.didBecomeMainNotification) { notification in
-			guard self.isWindowLoaded,
+
+		observe(NSWindow.didBecomeMainNotification) { [weak self] notification in
+			guard let self,
+				  self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  self.usesPersistentCascadableWindowFrame else
 			{ return }
-			
+
 			self.saveWindowFrame()
 		}
-		
-		observe(NSWindow.didBecomeKeyNotification) { notification in
-			guard self.isWindowLoaded,
+
+		observe(NSWindow.didBecomeKeyNotification) { [weak self] notification in
+			guard let self,
+				  self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  self.usesPersistentCascadableWindowFrame else
 			{ return }
-			
+
 			Self.previousTopLeft = window.topLeft
 		}
-		
-		observe(NSWindow.didResizeNotification) { notification in
-			guard self.isWindowLoaded,
+
+		observe(NSWindow.didResizeNotification) { [weak self] notification in
+			guard let self,
+				  self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  self.usesPersistentCascadableWindowFrame else
 			{ return }
-			
+
 			self.saveWindowFrame()
 			Self.previousTopLeft = window.topLeft
 		}
-		
-		observe(NSWindow.didMoveNotification) { notification in
-			guard self.isWindowLoaded,
+
+		observe(NSWindow.didMoveNotification) { [weak self] notification in
+			guard let self,
+				  self.isWindowLoaded,
 				  let window = self.cascadableWindow,
 				  (notification.object as? CascadableWindow) === window,
 				  window.isKeyWindow,
 				  self.usesPersistentCascadableWindowFrame else
 			{ return }
-			
+
 			self.saveWindowFrame()
-			
+
 			if window.isMainWindow {
 				Self.previousTopLeft = window.topLeft
 			}
 		}
-		
-		observe(NSWindow.willCloseNotification) { notification in
+
+		observe(NSWindow.willCloseNotification) { [weak self] notification in
+			guard let self else { return }
 			// Discard window size cache if target window count would be zero
 			if let window = self.cascadableWindow, (notification.object as? CascadableWindow) === window {
 				if self.discardsPersistentCascadableWindowFrameWhenLastClosed && self.targetCascadableWindows().count == 1 {
 					Self.previousTopLeft = window.topLeft
 					self.clearPersistentWindowFrameInfo()
 				}
+				self.removeObserversForCascading()
 			}
 		}
 	}

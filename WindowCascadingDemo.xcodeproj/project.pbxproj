@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,8 +12,7 @@
 		512B05EA2913652C00C416DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 512B05E92913652C00C416DD /* Assets.xcassets */; };
 		512B05ED2913652C00C416DD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 512B05EB2913652C00C416DD /* Main.storyboard */; };
 		512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B05F52913654400C416DD /* DocumentWindowController.swift */; };
-		5159E0E32B92C37200F3E575 /* CascadableNSWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */; };
-		5183561C29F5898B00C15A6B /* WindowCascading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5183561B29F5898B00C15A6B /* WindowCascading.swift */; };
+		51AC9D352F6E487D00DE0B6D /* WindowCascading in Frameworks */ = {isa = PBXBuildFile; productRef = 51AC9D342F6E487D00DE0B6D /* WindowCascading */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,8 +23,6 @@
 		512B05EC2913652C00C416DD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		512B05EE2913652C00C416DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		512B05F52913654400C416DD /* DocumentWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWindowController.swift; sourceTree = "<group>"; };
-		5183561B29F5898B00C15A6B /* WindowCascading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WindowCascading.swift; path = Sources/WindowCascading/WindowCascading.swift; sourceTree = "<group>"; };
-		51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CascadableNSWindowController.swift; path = Sources/WindowCascading/CascadableNSWindowController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51AC9D352F6E487D00DE0B6D /* WindowCascading in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,7 +40,6 @@
 		512B05D72913652B00C416DD = {
 			isa = PBXGroup;
 			children = (
-				5183561A29F5898200C15A6B /* WindowCascading */,
 				512B05E22913652B00C416DD /* Demo */,
 				512B05E12913652B00C416DD /* Products */,
 			);
@@ -67,15 +64,6 @@
 				512B05EE2913652C00C416DD /* Info.plist */,
 			);
 			path = Demo;
-			sourceTree = "<group>";
-		};
-		5183561A29F5898200C15A6B /* WindowCascading */ = {
-			isa = PBXGroup;
-			children = (
-				5183561B29F5898B00C15A6B /* WindowCascading.swift */,
-				51DA4DD92B92B80100E67C5E /* CascadableNSWindowController.swift */,
-			);
-			name = WindowCascading;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -122,6 +110,9 @@
 				Base,
 			);
 			mainGroup = 512B05D72913652B00C416DD;
+			packageReferences = (
+				51AC9D332F6E487D00DE0B6D /* XCLocalSwiftPackageReference "../WindowCascading" */,
+			);
 			productRefGroup = 512B05E12913652B00C416DD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -151,8 +142,6 @@
 				512B05F62913654400C416DD /* DocumentWindowController.swift in Sources */,
 				512B05E42913652B00C416DD /* AppDelegate.swift in Sources */,
 				512B05E82913652B00C416DD /* Document.swift in Sources */,
-				5183561C29F5898B00C15A6B /* WindowCascading.swift in Sources */,
-				5159E0E32B92C37200F3E575 /* CascadableNSWindowController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,6 +360,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		51AC9D332F6E487D00DE0B6D /* XCLocalSwiftPackageReference "../WindowCascading" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../WindowCascading;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		51AC9D342F6E487D00DE0B6D /* WindowCascading */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WindowCascading;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 512B05D82913652B00C416DD /* Project object */;
 }

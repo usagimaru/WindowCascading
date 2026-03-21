@@ -45,16 +45,32 @@ open class CascadableNSWindowController: NSWindowController, WindowControllerWit
 	
 	/* ================== << WindowControllerWithCascading ================== */
 
+	/// Tracks whether prepareForWindowRestoring() has been called, to avoid duplicate invocation
+	/// when both windowDidLoad() and showWindow(_:) are triggered.
+	private var didPrepareForWindowRestoring = false
+
+	deinit {
+		removeObserversForCascading()
+	}
+
 	open override func windowDidLoad() {
 		super.windowDidLoad()
-		
+
 		// WindowControllerWithCascading: Setup window cascading (for NSWindowRestoration)
 		prepareForWindowRestoring()
+		didPrepareForWindowRestoring = true
 	}
-	
+
 	open override func showWindow(_ sender: Any?) {
+		// When initialized with init(window:), windowDidLoad() is not called.
+		// Ensure prepareForWindowRestoring() runs before the window is shown.
+		if !didPrepareForWindowRestoring {
+			prepareForWindowRestoring()
+			didPrepareForWindowRestoring = true
+		}
+
 		super.showWindow(sender)
-		
+
 		// WindowControllerWithCascading: Setup window cascading
 		setupWindowCascading()
 	}
